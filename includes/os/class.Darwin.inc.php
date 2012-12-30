@@ -110,12 +110,14 @@ class Darwin extends BSDCommon
      * get CPU information
      *
      * @return void
+     * (sysctl -a | grep "machdep.cpu.brand_string") to get proper CPU info.
+     * (hostinfo | grep "Processor type") - the old method.
      */
     protected function cpuinfo()
     {
         $dev = new CpuDevice();
-        if (CommonFunctions::executeProgram('hostinfo', '| grep "Processor type"', $buf, PSI_DEBUG)) {
-            $dev->setModel(preg_replace('/Processor type: /', '', $buf));
+        if (CommonFunctions::executeProgram('sysctl', '-a | grep "machdep.cpu.brand_string"', $buf, PSI_DEBUG)) {
+            $dev->setModel(preg_replace('/machdep.cpu.brand_string: /', '', $buf));
             $buf=$this->grabkey('hw.model');
             if (CommonFunctions::rfts(APP_ROOT.'/data/ModelTranslation.txt', $buffer)) {
                 $buffer = preg_split("/\n/", $buffer, -1, PREG_SPLIT_NO_EMPTY);
